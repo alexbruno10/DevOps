@@ -17,10 +17,12 @@ pipeline {
         stage('Lint & Format Check') {
             agent { label 'build-agent' }
             steps {
+                dir('calculator') {
                 sh '''
                     echo ">>> Rodando análise estática e verificação de formatação"
                     make check || { echo "❌ Erro na checagem de código"; exit 1; }
                 '''
+                }
             }
         }
 
