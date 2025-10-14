@@ -60,7 +60,7 @@ Exemplo de artefato:
 calculator/bin/calculator
 MD5: 0169bf04bbae08630991e451e7aad874
 
-![Exemplo de Artefato](./screenshots/artefato.png)  
+![Exemplo de Artefato](./screenshots/Artefato.png)  
 
 ---
 
@@ -92,22 +92,16 @@ MD5: 0169bf04bbae08630991e451e7aad874
 
 ---
 
-## 6. Instruções de Uso
+## 6. Docker
 
-1. **Disparo manual do pipeline:**
-   - Acesse Jenkins → selecione pipeline → `Build Now`
-2. **Disparo automático diário:**
-   - Configurado via cron (`H 3 * * *`)  
-3. **Disparo via webhook GitHub (opcional):**
-   - Requer Jenkins acessível externamente ou túnel (ngrok)
-4. **Visualização de artefatos:**
-   - Jenkins → Build → `Archived Artifacts`
+Criado 3 containers, sendo 1 para o Jenkins (Controlador) e 2 para os agentes (Build e Test):
+
+![Container](./screenshots/Containers.png)  
 
 ---
 
 ## 7. Observações Finais
 
 - Pipeline falha imediatamente se algum estágio crítico (lint, build ou testes) falhar.  
-- Estrutura modular: diferentes agentes podem ser usados para build e teste.  
-- Código está pronto para CI/CD, com binários arquivados e rastreáveis.  
-- Próximos passos sugeridos: Dockerização de agentes, teste de integração adicional, cobertura de código.
+- Estrutura modular: 1 controlador e 2 agentes, sendo um de build e outro de teste, em docker.  
+- Código está pronto para CI/CD, com binários arquivados e rastreáveis.
