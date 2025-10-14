@@ -2,15 +2,23 @@ pipeline {
     agent none
 
     triggers {
-        cron('H 3 * * *')       // executa diariamente às 3h
-        githubPush()            // executa automaticamente via webhook
+        cron('H 3 * * *')       // Executa diariamente às 3h
+        githubPush()            // Executa automaticamente via webhook
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10')) // mantém histórico limitado
+        timeout(time: 30, unit: 'MINUTES')            // timeout global
     }
 
     stages {
         stage('Checkout') {
             agent { label 'build-agent' }
             steps {
-                git branch: 'main', url: 'https://github.com/alexbruno10/Test_DevOps.git'
+                dir('calculator') {
+                    echo ">>> Obtendo código fonte"
+                    git branch: 'main', url: 'https://github.com/alexbruno10/Test_DevOps.git'
+                }
             }
         }
 
@@ -18,10 +26,10 @@ pipeline {
             agent { label 'build-agent' }
             steps {
                 dir('calculator') {
-                sh '''
-                    echo ">>> Rodando análise estática e verificação de formatação"
-                    make check || { echo "❌ Erro na checagem de código"; exit 1; }
-                '''
+                    sh '''
+                        echo ">>> Rodando análise estática e verificação de formatação"
+                        make check || { echo "❌ Erro na checagem de código"; exit 1; }
+                    '''
                 }
             }
         }
@@ -30,12 +38,11 @@ pipeline {
             agent { label 'build-agent' }
             steps {
                 dir('calculator') {
-                sh '''
-                    echo ">>> Compilando aplicação"
-                    make clean
-                    make all || { echo "❌ Falha na compilação"; exit 1; }
-                '''
-           
+                    sh '''
+                        echo ">>> Compilando aplicação"
+                        make clean
+                        make all || { echo "❌ Falha na compilação"; exit 1; }
+                    '''
                 }
             }
         }
@@ -43,12 +50,12 @@ pipeline {
         stage('Unit Tests') {
             agent { label 'test-agent' }
             steps {
-                 dir('calculator') {
-                sh '''
-                    echo ">>> Executando testes unitários"
-                    make unittest || { echo "❌ Testes falharam"; exit 1; }
-                '''
-                 }
+                dir('calculator') {
+                    sh '''
+                        echo ">>> Executando testes unitários"
+                        make unittest || { echo "❌ Testes falharam"; exit 1; }
+                    '''
+                }
             }
         }
 
@@ -56,8 +63,8 @@ pipeline {
             agent { label 'build-agent' }
             steps {
                 dir('calculator') {
-                echo ">>> Arquivando artefatos gerados"
-                archiveArtifacts artifacts: 'bin/**/*', fingerprint: true
+                    echo ">>> Arquivando artefatos gerados"
+                    archiveArtifacts artifacts: 'bin/**/*', fingerprint: true
                 }
             }
         }
@@ -65,10 +72,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline concluído com sucesso!"
+            echo "✅ Pipeline concluído com sucesso! Artefatos gerados e arquivados."
         }
         failure {
-            echo "❌ Pipeline falhou. Verifique os logs."
+            echo "❌ Pipeline falhou. Verifique os logs e corrija os erros antes de prosseguir."
         }
     }
 }
