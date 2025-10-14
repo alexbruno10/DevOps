@@ -1,0 +1,65 @@
+pipeline {
+    agent none
+
+    triggers {
+        cron('H 3 * * *')       // executa diariamente às 3h
+        githubPush()            // executa automaticamente via webhook
+    }
+
+    stages {
+        stage('Checkout') {
+            agent { label 'build-agent' }
+            steps {
+                git branch: 'main', url: 'https://github.com/alexbruno10/Test_DevOps.git'
+            }
+        }
+
+        stage('Lint & Format Check') {
+            agent { label 'build-agent' }
+            steps {
+                sh '''
+                    echo ">>> Rodando análise estática e verificação de formatação"
+                    make check || { echo "❌ Erro na checagem de código"; exit 1; }
+                '''
+            }
+        }
+
+        stage('Build') {
+            agent { label 'build-agent' }
+            steps {
+                sh '''
+                    echo ">>> Compilando aplicação"
+                    make clean
+                    make all || { echo "❌ Falha na compilação"; exit 1; }
+                '''
+            }
+        }
+
+        stage('Unit Tests') {
+            agent { label 'test-agent' }
+            steps {
+                sh '''
+                    echo ">>> Executando testes unitários"
+                    make unittest || { echo "❌ Testes falharam"; exit 1; }
+                '''
+            }
+        }
+
+        stage('Archive Artifacts') {
+            agent { label 'build-agent' }
+            steps {
+                echo ">>> Arquivando artefatos gerados"
+                archiveArtifacts artifacts: 'bin/**/*', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Pipeline concluído com sucesso!"
+        }
+        failure {
+            echo "❌ Pipeline falhou. Verifique os logs."
+        }
+    }
+}
