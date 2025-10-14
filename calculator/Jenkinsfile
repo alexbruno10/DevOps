@@ -29,29 +29,36 @@ pipeline {
         stage('Build') {
             agent { label 'build-agent' }
             steps {
+                dir('calculator') {
                 sh '''
                     echo ">>> Compilando aplicação"
                     make clean
                     make all || { echo "❌ Falha na compilação"; exit 1; }
                 '''
+           
+                }
             }
         }
 
         stage('Unit Tests') {
             agent { label 'test-agent' }
             steps {
+                 dir('calculator') {
                 sh '''
                     echo ">>> Executando testes unitários"
                     make unittest || { echo "❌ Testes falharam"; exit 1; }
                 '''
+                 }
             }
         }
 
         stage('Archive Artifacts') {
             agent { label 'build-agent' }
             steps {
+                dir('calculator') {
                 echo ">>> Arquivando artefatos gerados"
                 archiveArtifacts artifacts: 'bin/**/*', fingerprint: true
+                }
             }
         }
     }
