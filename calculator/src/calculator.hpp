@@ -13,5 +13,11 @@ class Calculator {
 
   inline T multiply() { return number1 * number2; }
 
-  inline T divide() { return number1 / number2; }
+    inline T divide() {
+      if (number2 == 0) {
+          throw std::runtime_error("Divisão por zero!");
+      }
+      return number1 / number2;
+  }
+
 };
