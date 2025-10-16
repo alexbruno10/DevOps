@@ -1,5 +1,3 @@
-# Prova Prática – Documentação
-
 ## 1. Descrição do Ambiente
 
 - **Servidor Jenkins:** Local, Ubuntu 24.04  
